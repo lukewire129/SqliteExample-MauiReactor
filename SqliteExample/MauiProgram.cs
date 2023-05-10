@@ -1,31 +1,36 @@
-﻿using MauiReactor;
-using SqliteExample.Pages;
+﻿using Microsoft.Extensions.Logging;
 
-
-namespace SqliteExample;
-
-public static class MauiProgram
+namespace SqliteExample
 {
-    public static MauiApp CreateMauiApp()
-    {
-        var builder = MauiApp.CreateBuilder();
-        builder
-            .UseMauiReactorApp<MainPage>(app =>
-            {
-                app.AddResource("Resources/Styles/Colors.xaml");
-                app.AddResource("Resources/Styles/Styles.xaml");
+		public static partial class MauiProgram
+		{
+				public static MauiApp CreateMauiApp()
+				{
+						var builder = MauiApp.CreateBuilder ();
+						builder.UseMauiReactorApp<MainPage> (app =>
+							   {
+									   app.AddResource ("Resources/Colors.xaml");
+									   app.AddResource ("Resources/Styles.xaml");
+									   app.AddResource ("Resources/AppStyles.xaml");
 
-                app.SetWindowsSpecificAssectDirectory("Assets");
-            })
+									   app.SetWindowsSpecificAssectDirectory ("Assets");
+							   })
 #if DEBUG
-            .EnableMauiReactorHotReload()
+                   .EnableMauiReactorHotReload()
 #endif
-            .ConfigureFonts(fonts =>
-            {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-SemiBold.ttf", "OpenSansSemiBold");
-            });
+							   .ConfigureFonts (fonts =>
+							   {
+									   fonts.AddFont ("OpenSans-Regular.ttf", "OpenSansRegular");
+									   fonts.AddFont ("OpenSans-SemiBold.ttf", "OpenSansSemiBold");
+							   });
 
-        return builder.Build();
-    }
+						builder.Services.AddSingleton (SemanticScreenReader.Default);
+
+#if DEBUG
+            builder.Logging.AddDebug();
+#endif
+
+						return builder.Build ();
+				}
+		}
 }
