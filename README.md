@@ -7,4 +7,5 @@ Used By| etc..
 |SQLitePCLRaw.bundle_green|https://www.nuget.org/packages/SQLitePCLRaw.bundle_green/2.1.4|
 
 ## Overview
-1. Todo 앱
+1. ORM을 통한 Local DataBase 관리 (insert, update, delete)
+2. Todo 앱 기반
