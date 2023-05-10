@@ -1,49 +1,79 @@
-﻿namespace SqliteExample.Views
+﻿using MauiReactor;
+using SqliteExample.Model;
+using SqliteExample.Service;
+using System.Collections.ObjectModel;
+
+namespace SqliteExample.Views
 {
 		internal class MainPageState
 		{
-				public string CountText { get; set; } = "Current count: 0";
+				public ObservableCollection<TodoItemModel> todo;
+				public string inputText;
 		}
 
 		internal class MainPage : Component<MainPageState>
 		{
-				int count = 0;
+				private SqliteNetService _sqliteNetService;
+				public MainPage()
+				{
+						_sqliteNetService = Services.GetRequiredService<SqliteNetService> ();
+						SetState (s => s.todo = new ObservableCollection<TodoItemModel> (this._sqliteNetService.Get ()));
+				}
 
 				public override VisualNode Render() => new ContentPage ()
 				{
-							new VerticalStackLayout()
-							{
-								new Label("Hello, World!").HCenter()
-														  .Style(AppStyle("MauiLabel"))
-														  .FontSize(32)
-														  .Set(MC.SemanticProperties.HeadingLevelProperty, SemanticHeadingLevel.Level1),
-								new Label("Welcome to .NET Multi-platform App UI").HCenter()
-																				  .Style(AppStyle("MauiLabel"))
-																				  .FontSize(18)
-																				  .Set(MC.SemanticProperties.DescriptionProperty, "Welcome to dot net Multi platform App U I")
-																				  .Set(MC.SemanticProperties.HeadingLevelProperty, SemanticHeadingLevel.Level1),
-								new Label(State.CountText).HCenter()
-														  .Style(AppStyle("MauiLabel"))
-														  .FontAttributes(MC.FontAttributes.Bold)
-														  .FontSize(18),
-								new Button("Click me").HCenter()
-													  .Style(AppStyle("PrimaryAction"))
-													  .OnClicked(IncrementCount)
-													  .Set(MC.SemanticProperties.HintProperty, "Counts the number of times you click"),
-								new Image("dotnet_bot.png").WidthRequest(310)
-														   .HeightRequest(250)
-														   .HCenter()
-														   .Set(MC.SemanticProperties.DescriptionProperty, "Cute dot net bot waving hi to you!")
-							}.VCenter()
-							 .Padding(30)
-							 .Spacing(25)
+						new VStack()
+						{
+								new HStack()
+								{
+										new Entry()
+										  .WidthRequest(265)
+										  .Placeholder("Input Text!")
+										  .Text(State.inputText)
+										  .OnTextChanged((e)=>
+										  {
+												  State.inputText =e;
+										  }),
+										new Button("Insert")
+										  .OnClicked(()=>
+										  {
+												  this._sqliteNetService.Insert(new TodoItemModel()
+												  {
+														  Text = State.inputText
+												  });
+												  SetState (s => s.todo = new ObservableCollection<TodoItemModel>(this._sqliteNetService.Get()));
+												  SetState(s=>s.inputText = null);
+										  })
+								},
+
+								new CollectionView()
+								.ItemsSource(State.todo, TodoObject)
+								.GridRow(2),
+						}
+						 .Padding(30)
+
 				};
 
-				private void IncrementCount()
+				public VisualNode TodoObject(TodoItemModel todo)
 				{
-						count++;
-						SetState (s => s.CountText = $"Current count: {count}");
-						Services.GetService<ISemanticScreenReader> ()?.Announce (State.CountText);
+						return new Border ()
+						{
+								new Grid ()
+								{
+										new Label(todo.Text)
+											  .HStart()
+											  .VCenter(),
+										new Button("삭제")
+											  .HEnd()
+											  .OnClicked(()=>
+											  {
+													  this._sqliteNetService.Delete(State.todo.FirstOrDefault(x=>x.id == todo.id));
+													  SetState (s => s.todo = new ObservableCollection<TodoItemModel>(this._sqliteNetService.Get()));
+											  }),
+								}
+						}
+						.StrokeThickness (0.5)
+						.HeightRequest (50);
 				}
 		}
 }

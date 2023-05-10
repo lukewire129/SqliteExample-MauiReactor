@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SqliteExample.Service;
 
 namespace SqliteExample
 {
@@ -7,7 +8,8 @@ namespace SqliteExample
 				public static MauiApp CreateMauiApp()
 				{
 						var builder = MauiApp.CreateBuilder ();
-						builder.UseMauiReactorApp<MainPage> (app =>
+						builder
+								.UseMauiReactorApp<MainPage> (app =>
 							   {
 									   app.AddResource ("Resources/Colors.xaml");
 									   app.AddResource ("Resources/Styles.xaml");
@@ -16,7 +18,7 @@ namespace SqliteExample
 									   app.SetWindowsSpecificAssectDirectory ("Assets");
 							   })
 #if DEBUG
-                   .EnableMauiReactorHotReload()
+				   .EnableMauiReactorHotReload ()
 #endif
 							   .ConfigureFonts (fonts =>
 							   {
@@ -25,9 +27,9 @@ namespace SqliteExample
 							   });
 
 						builder.Services.AddSingleton (SemanticScreenReader.Default);
-
+						builder.Services.AddSingleton <SqliteNetService>();
 #if DEBUG
-            builder.Logging.AddDebug();
+						builder.Logging.AddDebug ();
 #endif
 
 						return builder.Build ();
